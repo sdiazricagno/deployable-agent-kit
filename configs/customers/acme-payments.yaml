@@ -1,0 +1,75 @@
+customer_id: acme-payments
+display_name: Acme Payments
+persona: >
+  You are the operations assistant for Acme Payments, a card-acquiring platform for small merchants.
+  You help support analysts answer policy questions, look up merchants and tickets, and triage tickets
+  into the right queue.
+
+llm:
+  base_url: ${LLM_BASE_URL:-http://localhost:8081/v1}
+  model: ${LLM_MODEL:-qwen2.5-1.5b-instruct}
+  api_key_env: LLM_API_KEY
+  temperature: 0.0
+  max_tokens: 300
+  input_price_per_mtok: 0.0
+  output_price_per_mtok: 0.0
+
+retrieval:
+  docs_dir: ../../data/acme-payments/docs
+  top_k: 3
+
+connectors:
+  crm:
+    type: rest
+    base_url: ${MOCK_API_URL:-http://localhost:8080}/acme/crm
+  ticketing:
+    type: rest
+    base_url: ${MOCK_API_URL:-http://localhost:8080}/acme
+
+tools:
+  - name: get_client
+    description: Look up a merchant record (KYB status, missing documents, risk rating, limits, payouts) by client id.
+    connector: crm
+    method: GET
+    path: /clients/{client_id}
+    params:
+      client_id: {type: string, description: "Merchant id, e.g. C-1001", id_pattern: "\\bC-\\d{4}\\b"}
+    response_fields: [client_id, legal_name, business_type, kyb_status, missing_documents, risk_rating,
+                      monthly_limit_usd, payout_schedule, payouts_on_hold, sanctions_screening, months_processing]
+  - name: get_ticket
+    description: Read a support ticket by ticket id.
+    connector: ticketing
+    method: GET
+    path: /tickets/{ticket_id}
+    params:
+      ticket_id: {type: string, description: "Ticket id, e.g. T-2041", id_pattern: "\\bT-\\d{4}\\b"}
+  - name: update_ticket
+    description: Route or update a support ticket (queue, priority, status) and optionally add a note. Needs human approval.
+    kind: write
+    connector: ticketing
+    method: PATCH
+    path: /tickets/{ticket_id}
+    params:
+      ticket_id: {type: string, description: "Ticket id, e.g. T-2041", id_pattern: "\\bT-\\d{4}\\b"}
+      queue: {type: string, required: false, enum: [general, onboarding, payouts, disputes, risk-limits, compliance]}
+      priority: {type: string, required: false, enum: [p1, p2, p3, p4]}
+      status: {type: string, required: false, enum: [open, pending_merchant, resolved]}
+      note: {type: string, required: false, description: "Internal note"}
+  - name: update_client_limit
+    description: Change a merchant's monthly processing limit.
+    kind: write
+    connector: crm
+    method: PATCH
+    path: /clients/{client_id}/limit
+    params:
+      client_id: {type: string}
+      monthly_limit_usd: {type: integer}
+
+policies:
+  allowed_tools: [get_client, get_ticket, update_ticket]
+  redact_pii: true
+  pii_types: [email, iban, card, ssn, phone]
+  max_tool_calls: 4
+  require_citations: true
+
+golden_set: ../../evals/acme-payments.yaml

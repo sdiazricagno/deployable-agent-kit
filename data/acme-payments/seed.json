@@ -1,0 +1,14 @@
+{
+  "clients": [
+    {"client_id": "C-1001", "legal_name": "Brightline Coffee Ltd", "business_type": "limited_company", "kyb_status": "verified", "missing_documents": [], "risk_rating": "low", "monthly_limit_usd": 50000, "payout_schedule": "daily", "payouts_on_hold": false, "months_processing": 14, "contact_email": "finance@brightline.example", "contact_phone": "+44 20 7946 0123"},
+    {"client_id": "C-1002", "legal_name": "Orbit Bikes", "business_type": "sole_trader", "kyb_status": "pending", "missing_documents": ["proof_of_address"], "risk_rating": "medium", "monthly_limit_usd": 10000, "payout_schedule": "weekly", "payouts_on_hold": true, "months_processing": 1, "contact_email": "orbit.bikes@example.net", "contact_phone": "+1 415 555 0142"},
+    {"client_id": "C-1003", "legal_name": "Nimbus Travel Group", "business_type": "limited_company", "kyb_status": "under_review", "missing_documents": [], "risk_rating": "high", "monthly_limit_usd": 25000, "payout_schedule": "weekly", "payouts_on_hold": true, "sanctions_screening": "potential_match_under_review", "months_processing": 3, "contact_email": "ops@nimbus-travel.example", "contact_phone": "+1 212 555 0199"},
+    {"client_id": "C-1004", "legal_name": "Juniper Florals", "business_type": "sole_trader", "kyb_status": "verified", "missing_documents": [], "risk_rating": "low", "monthly_limit_usd": 15000, "payout_schedule": "daily", "payouts_on_hold": false, "months_processing": 9, "contact_email": "hello@juniperflorals.example", "contact_phone": "+1 503 555 0110"}
+  ],
+  "tickets": [
+    {"ticket_id": "T-2041", "client_id": "C-1002", "subject": "Payouts paused, where is my money?", "body": "Customer wrote from orbit.bikes@example.net: no payout for two weeks.", "status": "open", "priority": "p3", "queue": "general", "notes": []},
+    {"ticket_id": "T-2042", "client_id": "C-1001", "subject": "Chargeback on order 88123 (240 USD)", "body": "Merchant received a chargeback notification yesterday and wants to contest it.", "status": "open", "priority": "p3", "queue": "general", "notes": []},
+    {"ticket_id": "T-2043", "client_id": "C-1001", "subject": "Request to raise monthly limit to 80,000 USD", "body": "Seasonal peak expected next month.", "status": "open", "priority": "p3", "queue": "general", "notes": []},
+    {"ticket_id": "T-2044", "client_id": "C-1003", "subject": "Account flagged, urgent travel bookings", "body": "Merchant says payouts are blocked; screening shows a potential sanctions match.", "status": "open", "priority": "p3", "queue": "general", "notes": []}
+  ]
+}
