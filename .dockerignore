@@ -1,0 +1,7 @@
+.venv
+models
+traces
+runs
+.git
+**/__pycache__
+data/*/warehouse.db

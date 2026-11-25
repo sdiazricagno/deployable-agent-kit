@@ -1,0 +1,31 @@
+services:
+  llm:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    command: >
+      -m /models/${LLM_GGUF:-qwen2.5-1.5b-instruct-q4_k_m.gguf} --jinja -c 8192
+      --host 0.0.0.0 --port 8081 -a ${LLM_MODEL:-qwen2.5-1.5b-instruct}
+    volumes:
+      - ./models:/models:ro
+    ports:
+      - "8081:8081"
+
+  mock-apis:
+    build: .
+    command: ["uvicorn", "agentkit.mock_apis.app:app", "--host", "0.0.0.0", "--port", "8080"]
+    ports:
+      - "8080:8080"
+
+  agent:
+    build: .
+    depends_on: [llm, mock-apis]
+    environment:
+      AGENTKIT_CONFIG: ${AGENTKIT_CONFIG:-configs/customers/acme-payments.yaml}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://llm:8081/v1}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5-1.5b-instruct}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      MOCK_API_URL: http://mock-apis:8080
+      AGENTKIT_TRACE_FILE: /app/traces/spans.jsonl
+    volumes:
+      - ./traces:/app/traces
+    ports:
+      - "8000:8000"

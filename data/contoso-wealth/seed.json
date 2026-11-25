@@ -1,0 +1,19 @@
+{
+  "accounts": [
+    {"account_id": "A-501", "holder_name": "R. Alvarez", "account_type": "individual", "kyc_status": "verified", "kyc_review_due": "2027-03-01", "risk_profile": "moderate", "aum_usd": 1250000, "residency": "US", "email": "r.alvarez@example.com"},
+    {"account_id": "A-502", "holder_name": "M. Chen", "account_type": "joint", "kyc_status": "expired", "kyc_review_due": "2026-10-15", "risk_profile": "conservative", "aum_usd": 430000, "residency": "CA", "email": "m.chen@example.org"},
+    {"account_id": "A-503", "holder_name": "Tidewater Family Trust", "account_type": "trust", "kyc_status": "verified", "kyc_review_due": "2027-06-30", "risk_profile": "growth", "aum_usd": 8900000, "residency": "US", "email": "trustees@tidewater.example"},
+    {"account_id": "A-504", "holder_name": "K. Osei", "account_type": "individual", "kyc_status": "pending", "kyc_review_due": "2029-11-01", "risk_profile": "moderate", "aum_usd": 0, "residency": "GB", "email": "k.osei@example.co.uk"}
+  ],
+  "transfers": [
+    {"transfer_id": "W-9001", "account_id": "A-501", "ts": "2026-11-20T15:10:00Z", "direction": "out", "amount_usd": 12000, "counterparty_country": "US", "high_risk_jurisdiction": 0, "status": "completed"},
+    {"transfer_id": "W-9002", "account_id": "A-501", "ts": "2026-11-24T13:05:00Z", "direction": "out", "amount_usd": 75000, "counterparty_country": "XR", "high_risk_jurisdiction": 1, "status": "held_compliance_review"},
+    {"transfer_id": "W-9003", "account_id": "A-503", "ts": "2026-11-22T10:00:00Z", "direction": "in", "amount_usd": 250000, "counterparty_country": "US", "high_risk_jurisdiction": 0, "status": "completed"},
+    {"transfer_id": "W-9004", "account_id": "A-502", "ts": "2026-11-23T09:30:00Z", "direction": "out", "amount_usd": 5000, "counterparty_country": "CA", "high_risk_jurisdiction": 0, "status": "rejected_kyc_expired"}
+  ],
+  "cases": [
+    {"case_ref": "CS-7781", "account": "A-501", "summary": "Client asks why the 75,000 USD wire from Monday has not arrived.", "state": "new", "severity": "sev3", "team": "service-desk", "comments": []},
+    {"case_ref": "CS-7782", "account": "A-502", "summary": "Client wants to update their mailing address.", "state": "new", "severity": "sev4", "team": "service-desk", "comments": []},
+    {"case_ref": "CS-7783", "account": "A-502", "summary": "Periodic KYC refresh is overdue.", "state": "new", "severity": "sev3", "team": "service-desk", "comments": []}
+  ]
+}

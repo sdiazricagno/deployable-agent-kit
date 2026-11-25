@@ -1,0 +1,77 @@
+customer_id: contoso-wealth
+display_name: Contoso Wealth
+persona: >
+  You are the client-operations assistant for Contoso Wealth, a wealth manager. You help operations staff
+  answer KYC and wire-policy questions, look up accounts, transfers and cases, and route cases to the
+  right team.
+
+llm:
+  base_url: ${LLM_BASE_URL:-http://localhost:8081/v1}
+  model: ${LLM_MODEL:-qwen2.5-1.5b-instruct}
+  api_key_env: LLM_API_KEY
+  temperature: 0.0
+  max_tokens: 300
+
+retrieval:
+  docs_dir: ../../data/contoso-wealth/docs
+  top_k: 3
+
+connectors:
+  warehouse:
+    type: sql
+    path: ../../data/contoso-wealth/warehouse.db
+  cases:
+    type: rest
+    base_url: ${MOCK_API_URL:-http://localhost:8080}/contoso/api/v2
+
+tools:
+  - name: get_account
+    description: Look up a client account (KYC status, review date, risk profile, AUM) by account id.
+    connector: warehouse
+    sql: >
+      SELECT account_id, account_type, kyc_status, kyc_review_due, risk_profile, aum_usd, residency
+      FROM accounts WHERE account_id = :account_id
+    params:
+      account_id: {type: string, description: "Account id, e.g. A-501", id_pattern: "\\bA-\\d{3}\\b"}
+  - name: recent_transfers
+    description: List the most recent transfers on an account, newest first, with status.
+    connector: warehouse
+    sql: >
+      SELECT transfer_id, ts, direction, amount_usd, counterparty_country, high_risk_jurisdiction, status
+      FROM transfers WHERE account_id = :account_id ORDER BY ts DESC LIMIT 5
+    params:
+      account_id: {type: string, description: "Account id, e.g. A-501", id_pattern: "\\bA-\\d{3}\\b"}
+  - name: get_case
+    description: Read a client service case by case reference.
+    connector: cases
+    method: GET
+    path: /cases/{case_ref}
+    params:
+      case_ref: {type: string, description: "Case reference, e.g. CS-7781", id_pattern: "\\bCS-\\d{4}\\b"}
+  - name: update_case
+    description: Route or update a case (team, state, severity) and optionally add a comment. Needs human approval.
+    kind: write
+    connector: cases
+    method: PATCH
+    path: /cases/{case_ref}
+    params:
+      case_ref: {type: string, description: "Case reference, e.g. CS-7781", id_pattern: "\\bCS-\\d{4}\\b"}
+      team: {type: string, required: false, enum: [service-desk, kyc-ops, payments-ops, compliance]}
+      state: {type: string, required: false, enum: [new, in_progress, waiting_client, resolved]}
+      severity: {type: string, required: false, enum: [sev1, sev2, sev3, sev4]}
+      comment: {type: string, required: false}
+  - name: close_account
+    description: Permanently close a client account.
+    kind: write
+    connector: cases
+    method: POST
+    path: /accounts/{account_id}/close
+    params:
+      account_id: {type: string}
+
+policies:
+  allowed_tools: [get_account, recent_transfers, get_case, update_case]
+  redact_pii: true
+  max_tool_calls: 4
+
+golden_set: ../../evals/contoso-wealth.yaml
