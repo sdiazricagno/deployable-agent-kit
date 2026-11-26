@@ -1,5 +1,7 @@
 # deployable-agent-kit
 
+[![ci](https://github.com/sdiazricagno/deployable-agent-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/sdiazricagno/deployable-agent-kit/actions/workflows/ci.yml)
+
 A configurable operations agent that can be deployed into a financial-services customer's environment with a YAML file instead of a code change. It answers policy questions from the customer's own runbooks with citations, looks up live records in their systems (REST CRM, ticketing, a SQL warehouse), routes tickets and cases behind human approval, and ships with the guardrails, tracing, eval harness and deployment playbook needed to put it in front of real analysts.
 
 Everything here runs on a laptop CPU against a small open model, and all customer data is synthetic.
